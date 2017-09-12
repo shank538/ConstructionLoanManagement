@@ -1,0 +1,52 @@
+
+Login
+1. Admin
+2. Inspector
+3. Bank
+
+Step 1
+Admin
+1. Create ConstructionMasterGuide
+Table -> 
+    id INTEGER UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    addressid INTEGER UNSIGNED NOT NULL REFERENCES address(id),
+    projectname VARCHAR(30) NOT NULL,
+    startdate DATETIME,
+    enddate  DATETIME 
+
+CREATE TABLE constructionphase (
+    id INTEGER UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    projectname VARCHAR(30) NOT NULL,
+    code VARCHAR(30) NOT NULL,
+    masterreferenceid INTEGER UNSIGNED NOT NULL REFERENCES guideline(id),
+    inspectionid INTEGER UNSIGNED REFERENCES inspection(id),
+    status VARCHAR(10) NOT NULL, 
+    startdate DATETIME,
+    enddate DATETIME,
+    constructioncost DECIMAL(13,4) NOT NULL
+);
+
+Step 2
+Bank
+Input 
+masterguideline id
+construction phase id
+Loan id
+
+Step 3
+Construction Phase 1 Complete
+a. Admin request for disbursement
+b. Bank will login and assign Inspector
+c. Inspector will login and approve/disapprove
+d. Bank will login and approve disbursement and release funds
+e. Transaction table updated
+Inspector Id by bank -> Approval by inspector -> Disbursement -> Transaction id
+
+Step 4
+Admin Login
+Constrution project finish -> Status update by Admin
+
+
+
+
+
