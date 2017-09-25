@@ -16,6 +16,9 @@ public class Address {
     @GeneratedValue(generator = "address_generator")
     private Long id;
 
+    @Column(name="name",nullable = false)
+    private String name;
+
     @Column(name="street",nullable = false)
     private String street;
 
@@ -92,5 +95,13 @@ public class Address {
 
     public void setLongitude(String longitude) {
         this.longitude = longitude;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

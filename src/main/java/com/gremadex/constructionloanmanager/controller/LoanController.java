@@ -3,8 +3,11 @@ package com.gremadex.constructionloanmanager.controller;
 import com.gremadex.constructionloanmanager.model.LoanDetails;
 import com.gremadex.constructionloanmanager.persistance.domain.Address;
 import com.gremadex.constructionloanmanager.persistance.repository.AddressDao;
+import org.aspectj.weaver.ast.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -30,16 +33,16 @@ public class LoanController {
         return loanDetails;
     }
 
-    @RequestMapping(value="/saveAddress", method= RequestMethod.GET)
-    public @ResponseBody String saveAddress() {
+    @RequestMapping(value="/saveAddress", method= RequestMethod.POST, consumes = {MediaType.APPLICATION_JSON_VALUE} )
+    public @ResponseBody String saveAddress(@RequestBody Address address) {
 
-        Address address = new Address();
-        address.setCity("Alld");
-        address.setCountryCode("SG");
-        address.setLatitude("56.9");
-        address.setLongitude("58.1");
-        address.setStreet("street1");
-        address.setZipCode("211003");
+//        Address address = new Address();
+//        address.setCity("Alld");
+//        address.setCountryCode("SG");
+//        address.setLatitude("56.9");
+//        address.setLongitude("58.1");
+//        address.setStreet("street1");
+//        address.setZipCode("211003");
 //        address.setId(new Long(123));
 
         addressDao.save(address);

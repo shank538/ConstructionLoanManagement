@@ -1,4 +1,4 @@
-CREATE TABLE `address` (
+CREATE TABLE constructionloanmanagement.`address` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(45) NOT NULL,
   `street` varchar(50) NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE `address` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8
 
-CREATE TABLE `constructionphase` (
+CREATE TABLE constructionloanmanagement.`constructionphase` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `projectname` varchar(45) NOT NULL,
   `masterreferenceid` int(10) unsigned NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE `constructionphase` (
   CONSTRAINT `fk_masterreferenceid` FOREIGN KEY (`masterreferenceid`) REFERENCES `guideline` (` id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8
 
-CREATE TABLE `guideline` (
+CREATE TABLE constructionloanmanagement.`guideline` (
   ` id` int(10) unsigned NOT NULL,
   `addressid` int(10) unsigned NOT NULL,
   `projectname` varchar(45) NOT NULL,
@@ -37,7 +37,7 @@ CREATE TABLE `guideline` (
   CONSTRAINT `fk_addressid` FOREIGN KEY (`addressid`) REFERENCES `address` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 
-CREATE TABLE `individual` (
+CREATE TABLE constructionloanmanagement.`individual` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `role_type` varchar(10) NOT NULL,
   `name` varchar(30) NOT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE `individual` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8
 
-CREATE TABLE `inspection` (
+CREATE TABLE constructionloanmanagement.`inspection` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `constructionid` int(10) unsigned NOT NULL,
   `inspectionstatus` varchar(40) DEFAULT NULL,
@@ -64,7 +64,7 @@ CREATE TABLE `inspection` (
   CONSTRAINT `fk_constructionid` FOREIGN KEY (`constructionid`) REFERENCES `constructionphase` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 
-CREATE TABLE `loan` (
+CREATE TABLE constructionloanmanagement.`loan` (
   `loanid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `accountid` varchar(30) NOT NULL,
   `bankid` int(11) NOT NULL,
