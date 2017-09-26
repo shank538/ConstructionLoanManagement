@@ -12,7 +12,7 @@ CREATE TABLE constructionloanmanagement.`address` (
 
 CREATE TABLE constructionloanmanagement.`constructionphase` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `projectname` varchar(45) NOT NULL,
+  `phasename` varchar(45) NOT NULL,
   `masterreferenceid` int(10) unsigned NOT NULL,
   `constructionphasenumber` int(10) unsigned NOT NULL,
   `status` varchar(20) NOT NULL,
