@@ -67,9 +67,10 @@ public class LoanController {
     public  @ResponseBody String saveGuideline2(@RequestBody ConstructionGuideline constructionGuideline)
     {
         constructionGuideline.getAddress();
-        addressDao.save(constructionGuideline.getAddress());
+        Address address = addressDao.save(constructionGuideline.getAddress());
 
         Guideline guideline = new Guideline();
+        guideline.setAddressId(address.getId());
         guideline.setEndDate(constructionGuideline.getEndDate());
         guideline.setProjectName(constructionGuideline.getProjectName());
         guideline.setStartDate(constructionGuideline.getStartDate());
