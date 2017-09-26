@@ -27,7 +27,7 @@ CREATE TABLE constructionloanmanagement.`constructionphase` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 CREATE TABLE constructionloanmanagement.`guideline` (
-  ` id` int(10) unsigned NOT NULL,
+  ` id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `addressid` int(10) unsigned NOT NULL,
   `projectname` varchar(45) NOT NULL,
   `startdate` datetime DEFAULT NULL,
