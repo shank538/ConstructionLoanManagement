@@ -8,7 +8,7 @@ CREATE TABLE constructionloanmanagement.`address` (
   `latitude` double DEFAULT NULL,
   `longitude` double DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 CREATE TABLE constructionloanmanagement.`constructionphase` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -24,7 +24,7 @@ CREATE TABLE constructionloanmanagement.`constructionphase` (
   UNIQUE KEY `construction_unique_index` (`projectname`,`constructionphasenumber`),
   KEY `fk_masterreferenceid` (`masterreferenceid`),
   CONSTRAINT `fk_masterreferenceid` FOREIGN KEY (`masterreferenceid`) REFERENCES `guideline` (` id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 CREATE TABLE constructionloanmanagement.`guideline` (
   ` id` int(10) unsigned NOT NULL,
@@ -35,7 +35,7 @@ CREATE TABLE constructionloanmanagement.`guideline` (
   PRIMARY KEY (` id`),
   KEY `fk_addressid` (`addressid`),
   CONSTRAINT `fk_addressid` FOREIGN KEY (`addressid`) REFERENCES `address` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE constructionloanmanagement.`individual` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -49,7 +49,7 @@ CREATE TABLE constructionloanmanagement.`individual` (
   `city` varchar(30) NOT NULL,
   `country_code` varchar(10) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 CREATE TABLE constructionloanmanagement.`inspection` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -62,7 +62,7 @@ CREATE TABLE constructionloanmanagement.`inspection` (
   PRIMARY KEY (`id`),
   KEY `fk_constructionid` (`constructionid`),
   CONSTRAINT `fk_constructionid` FOREIGN KEY (`constructionid`) REFERENCES `constructionphase` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE constructionloanmanagement.`loan` (
   `loanid` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -78,6 +78,6 @@ CREATE TABLE constructionloanmanagement.`loan` (
   PRIMARY KEY (`loanid`),
   KEY `fk_constructionphaseloanid` (`constructionphaseid`),
   CONSTRAINT `fk_constructionphaseloanid` FOREIGN KEY (`constructionphaseid`) REFERENCES `constructionphase` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
