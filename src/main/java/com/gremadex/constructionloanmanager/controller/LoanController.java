@@ -1,11 +1,11 @@
 package com.gremadex.constructionloanmanager.controller;
 
 import com.gremadex.constructionloanmanager.model.LoanDetails;
-import com.gremadex.constructionloanmanager.persistance.domain.Address;
-import com.gremadex.constructionloanmanager.persistance.domain.ConstructionGuideline;
+import com.gremadex.constructionloanmanager.persistance.domain.*;
 import com.gremadex.constructionloanmanager.persistance.repository.AddressDao;
 import com.gremadex.constructionloanmanager.persistance.repository.ConstructionPhaseDao;
 import com.gremadex.constructionloanmanager.persistance.repository.GuidelineDao;
+import com.gremadex.constructionloanmanager.persistance.repository.IndividualDao;
 import org.aspectj.weaver.ast.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import com.gremadex.constructionloanmanager.persistance.domain.Guideline;
-import com.gremadex.constructionloanmanager.persistance.domain.ConstructionPhase;
 
 /**
  * Created by Shashank on 13/9/2017.
@@ -32,6 +30,9 @@ public class LoanController {
 
     @Autowired
     private ConstructionPhaseDao constructionPhaseDao;
+
+    @Autowired
+    private IndividualDao individualDao;
 
     @RequestMapping(method= RequestMethod.GET)
     public @ResponseBody
@@ -91,6 +92,17 @@ public class LoanController {
         constructionPhaseDao.save(constructionPhase);
 
         return "Construction Phase saved";
+    }
+
+
+    @RequestMapping(value = "/saveIndividual", method = RequestMethod.POST, consumes ={MediaType.APPLICATION_JSON_VALUE} )
+    public  @ResponseBody String saveIndividual(@RequestBody Individual individual)
+    {
+
+
+        individualDao.save(individual);
+
+        return "Individual saved";
     }
 
 }

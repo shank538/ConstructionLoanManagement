@@ -1,0 +1,14 @@
+{
+
+
+                 "roleType" : "Worker",
+                 "name" : "Raju Jaiswal",
+                 "emailId" : "raju123@gmail.com" ,
+                 "handPhone" : "972135488",
+                 "deskPhone" : "2406489",
+                 "street" : "15/7 Pandariba",
+                 "zipCode" : "211003",
+                 "city" : "Allahabad",
+                 "countryCode" : "+91"
+
+               }
