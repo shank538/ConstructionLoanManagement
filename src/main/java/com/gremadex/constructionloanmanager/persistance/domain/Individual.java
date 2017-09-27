@@ -9,8 +9,8 @@ public class Individual {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @SequenceGenerator(name ="construction_phase_generator", sequenceName = "construction_phase_sequence", initialValue = 23)
-    @GeneratedValue(generator = "construction_phase_generator")
+    @SequenceGenerator(name ="individual_generator", sequenceName = "individual_sequence", initialValue = 23)
+    @GeneratedValue(generator = "individual_generator")
 
     private Long id;
 
