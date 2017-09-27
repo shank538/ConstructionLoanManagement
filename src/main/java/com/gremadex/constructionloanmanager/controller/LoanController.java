@@ -2,10 +2,7 @@ package com.gremadex.constructionloanmanager.controller;
 
 import com.gremadex.constructionloanmanager.model.LoanDetails;
 import com.gremadex.constructionloanmanager.persistance.domain.*;
-import com.gremadex.constructionloanmanager.persistance.repository.AddressDao;
-import com.gremadex.constructionloanmanager.persistance.repository.ConstructionPhaseDao;
-import com.gremadex.constructionloanmanager.persistance.repository.GuidelineDao;
-import com.gremadex.constructionloanmanager.persistance.repository.IndividualDao;
+import com.gremadex.constructionloanmanager.persistance.repository.*;
 import org.aspectj.weaver.ast.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -33,6 +30,9 @@ public class LoanController {
 
     @Autowired
     private IndividualDao individualDao;
+
+    @Autowired
+    private InspectionDao inspectionDao;
 
     @RequestMapping(method= RequestMethod.GET)
     public @ResponseBody
@@ -103,6 +103,17 @@ public class LoanController {
         individualDao.save(individual);
 
         return "Individual saved";
+    }
+
+
+    @RequestMapping(value = "/saveInspection", method = RequestMethod.POST, consumes ={MediaType.APPLICATION_JSON_VALUE} )
+    public  @ResponseBody String saveInspection(@RequestBody Inspection inspection)
+    {
+
+
+        inspectionDao.save(inspection);
+
+        return "Inspection saved";
     }
 
 }
