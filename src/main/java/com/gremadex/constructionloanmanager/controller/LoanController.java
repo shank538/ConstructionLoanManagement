@@ -4,6 +4,7 @@ import com.gremadex.constructionloanmanager.model.LoanDetails;
 import com.gremadex.constructionloanmanager.persistance.domain.Address;
 import com.gremadex.constructionloanmanager.persistance.domain.ConstructionGuideline;
 import com.gremadex.constructionloanmanager.persistance.repository.AddressDao;
+import com.gremadex.constructionloanmanager.persistance.repository.ConstructionPhaseDao;
 import com.gremadex.constructionloanmanager.persistance.repository.GuidelineDao;
 import org.aspectj.weaver.ast.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import com.gremadex.constructionloanmanager.persistance.domain.Guideline;
+import com.gremadex.constructionloanmanager.persistance.domain.ConstructionPhase;
 
 /**
  * Created by Shashank on 13/9/2017.
@@ -27,6 +29,9 @@ public class LoanController {
 
     @Autowired
     private GuidelineDao guidelineDao;
+
+    @Autowired
+    private ConstructionPhaseDao constructionPhaseDao;
 
     @RequestMapping(method= RequestMethod.GET)
     public @ResponseBody
@@ -77,4 +82,15 @@ public class LoanController {
         guidelineDao.save(guideline);
         return "Construction Guideline saved";
     }
+
+    @RequestMapping(value = "/saveConstructionPhase", method = RequestMethod.POST, consumes ={MediaType.APPLICATION_JSON_VALUE} )
+    public  @ResponseBody String saveConstructionPhase(@RequestBody ConstructionPhase constructionPhase)
+    {
+
+
+        constructionPhaseDao.save(constructionPhase);
+
+        return "Construction Phase saved";
+    }
+
 }

@@ -1,9 +1,9 @@
 {
-                 "name" : "testddress",
-                 "street" : "street21",
-                 "zipCode" : "211003",
-                 "city" : "Alld",
-                 "countryCode" : "IN",
-                 "latitude" : "45.87",
-                 "longitude" : "67.34"
-               }
+                                 "name" : "testddress",
+                                 "street" : "street21",
+                                 "zipCode" : "211003",
+                                 "city" : "Alld",
+                                 "countryCode" : "IN",
+                                 "latitude" : "45.87",
+                                 "longitude" : "67.34"
+                               }

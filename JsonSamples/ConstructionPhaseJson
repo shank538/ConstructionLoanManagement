@@ -1,0 +1,12 @@
+{
+
+
+                 "phaseName" : "Suncity",
+                 "constructionPhaseNumber" : 121,
+                 "masterReferenceId" : 4,
+                 "status" : "under construction",
+                 "startDate" : "2017-09-27",
+                 "endDate" : "2020-09-27",
+                 "constructionCost" : 50000000,
+                 "revisedConstructionCost" : "10000000"
+               }
