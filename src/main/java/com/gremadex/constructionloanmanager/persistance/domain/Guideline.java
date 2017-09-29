@@ -15,12 +15,10 @@ public class Guideline {
     @Id
     @SequenceGenerator(name ="guideline_generator", sequenceName = "guideline_sequence", initialValue = 23)
     @GeneratedValue(generator = "guideline_generator")
-
-
-    private Long id;
+    private Integer id;
 
     @Column(name = "addressid", nullable = false)
-    private Long addressId;
+    private Integer addressId;
 
     @Column(name = "projectname", nullable = false)
     private String projectName;
@@ -35,19 +33,19 @@ public class Guideline {
         return serialVersionUID;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public Long getAddressId() {
+    public Integer getAddressId() {
         return addressId;
     }
 
-    public void setAddressId(Long addressId) {
+    public void setAddressId(Integer addressId) {
         this.addressId = addressId;
     }
 
