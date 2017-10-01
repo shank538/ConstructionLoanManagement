@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import com.gremadex.constructionloanmanager.persistance.domain.Guideline;
 import com.gremadex.constructionloanmanager.persistance.domain.ConstructionPhase;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -139,6 +140,28 @@ public class LoanController {
 
 
     }
+
+    @RequestMapping(value = "/getConstructionPhase/{phaseName}", method = RequestMethod.GET)
+    public @ResponseBody ConstructionPhase getConstructionPhase(@PathVariable("phaseName") String phaseName,Model model) {
+
+        Object[] constructionPhaseResult = (Object[])constructionPhaseDao.fetchConstructionPhase(phaseName).get(0);
+
+        ConstructionPhase constructionPhase = new ConstructionPhase();
+
+        constructionPhase.setId((Integer) (constructionPhaseResult[0]));
+        constructionPhase.setPhaseName((String) (constructionPhaseResult[1]));
+        constructionPhase.setMasterReferenceId((Integer) (constructionPhaseResult[2]));
+        constructionPhase.setConstructionPhaseNumber((Integer) (constructionPhaseResult[3]));
+        constructionPhase.setStatus((String) (constructionPhaseResult[4]));
+        constructionPhase.setStartDate((Date) (constructionPhaseResult[5]));
+        constructionPhase.setEndDate((Date) (constructionPhaseResult[6]));
+        constructionPhase.setConstructionCost((BigDecimal) (constructionPhaseResult[7]));
+        constructionPhase.setRevisedConstructionCost((BigDecimal) (constructionPhaseResult[8]));
+
+        return constructionPhase;
+    }
+
+
 
 //    @PostMapping(value = "/getGuideline")
 //    public String getGuideline(Model model)

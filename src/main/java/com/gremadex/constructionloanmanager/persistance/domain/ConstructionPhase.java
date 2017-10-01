@@ -16,7 +16,7 @@ public class ConstructionPhase {
     @SequenceGenerator(name ="construction_phase_generator", sequenceName = "construction_phase_sequence", initialValue = 23)
     @GeneratedValue(generator = "construction_phase_generator")
 
-    private  Long id;
+    private  Integer id;
 
     @Column(name = "phasename", nullable = false)
     private String phaseName;
@@ -54,11 +54,11 @@ public class ConstructionPhase {
         return serialVersionUID;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
