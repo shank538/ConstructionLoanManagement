@@ -41,6 +41,9 @@ public class LoanController {
     @Autowired
     private InspectionDao inspectionDao;
 
+    @Autowired
+    private LoanDao loanDao;
+
     @RequestMapping(method= RequestMethod.GET)
     public @ResponseBody
     LoanDetails getLoanDetails() {
@@ -110,6 +113,33 @@ public class LoanController {
         return guideline;
     }
 
+    @RequestMapping(value = "/getAddress/{name}", method = RequestMethod.GET)
+    public @ResponseBody Address getAddress(@PathVariable("name") String name,Model model)
+    {
+
+        Object[] addressResult = (Object[])addressDao.fetchAddress(name).get(0);
+
+        Address address = new Address();
+
+         address.setId((Integer) (addressResult[0]));
+       // Integer id = (Integer)(addressResult[0]);
+       // address.setId(((Integer)(addressResult[0])).intValue());
+        address.setName((String) (addressResult[1]));
+        address.setStreet((String) (addressResult[2]));
+        address.setZipCode((String) (addressResult[3]));
+        address.setCity((String) (addressResult[4]));
+        address.setCountryCode((String) (addressResult[5]));
+        address.setLatitude((Double) (addressResult[6]));
+        address.setLongitude((Double) (addressResult[7]));
+
+
+
+
+        return address;
+
+
+    }
+
 //    @PostMapping(value = "/getGuideline")
 //    public String getGuideline(Model model)
 
@@ -132,5 +162,16 @@ public class LoanController {
 
         return "Inspection saved";
     }
+
+    @RequestMapping(value = "/saveLoan", method = RequestMethod.POST, consumes ={MediaType.APPLICATION_JSON_VALUE} )
+    public  @ResponseBody String saveLoan(@RequestBody Loan loan)
+    {
+
+
+        loanDao.save(loan);
+
+        return "Loan saved";
+    }
+
 
 }

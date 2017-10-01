@@ -1,12 +1,12 @@
 {
 
 
-                 "constructionId" : 3,
-                 "inspectionStatus" : "Done",
-                 "remark" : "quality checking" ,
-                 "startDate" : "2017-09-23",
-                 "endDate" : "2017-09-26",
-                 "individualId" : 4
+                                 "constructionId" : 3,
+                                 "inspectionStatus" : "Done",
+                                 "remark" : "quality checking" ,
+                                 "startDate" : "2017-09-23",
+                                 "endDate" : "2017-09-26",
+                                 "individualId" : 4
 
 
-               }
+                               }
