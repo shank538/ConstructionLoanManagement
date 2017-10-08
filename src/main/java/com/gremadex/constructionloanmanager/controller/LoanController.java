@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import com.gremadex.constructionloanmanager.persistance.domain.Guideline;
 import com.gremadex.constructionloanmanager.persistance.domain.ConstructionPhase;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -40,6 +41,9 @@ public class LoanController {
 
     @Autowired
     private InspectionDao inspectionDao;
+
+    @Autowired
+    private LoanDao loanDao;
 
     @RequestMapping(method= RequestMethod.GET)
     public @ResponseBody
@@ -110,6 +114,55 @@ public class LoanController {
         return guideline;
     }
 
+    @RequestMapping(value = "/getAddress/{name}", method = RequestMethod.GET)
+    public @ResponseBody Address getAddress(@PathVariable("name") String name,Model model)
+    {
+
+        Object[] addressResult = (Object[])addressDao.fetchAddress(name).get(0);
+
+        Address address = new Address();
+
+         address.setId((Integer) (addressResult[0]));
+       // Integer id = (Integer)(addressResult[0]);
+       // address.setId(((Integer)(addressResult[0])).intValue());
+        address.setName((String) (addressResult[1]));
+        address.setStreet((String) (addressResult[2]));
+        address.setZipCode((String) (addressResult[3]));
+        address.setCity((String) (addressResult[4]));
+        address.setCountryCode((String) (addressResult[5]));
+        address.setLatitude((Double) (addressResult[6]));
+        address.setLongitude((Double) (addressResult[7]));
+
+
+
+
+        return address;
+
+
+    }
+
+    @RequestMapping(value = "/getConstructionPhase/{phaseName}", method = RequestMethod.GET)
+    public @ResponseBody ConstructionPhase getConstructionPhase(@PathVariable("phaseName") String phaseName,Model model) {
+
+        Object[] constructionPhaseResult = (Object[])constructionPhaseDao.fetchConstructionPhase(phaseName).get(0);
+
+        ConstructionPhase constructionPhase = new ConstructionPhase();
+
+        constructionPhase.setId((Integer) (constructionPhaseResult[0]));
+        constructionPhase.setPhaseName((String) (constructionPhaseResult[1]));
+        constructionPhase.setMasterReferenceId((Integer) (constructionPhaseResult[2]));
+        constructionPhase.setConstructionPhaseNumber((Integer) (constructionPhaseResult[3]));
+        constructionPhase.setStatus((String) (constructionPhaseResult[4]));
+        constructionPhase.setStartDate((Date) (constructionPhaseResult[5]));
+        constructionPhase.setEndDate((Date) (constructionPhaseResult[6]));
+        constructionPhase.setConstructionCost((BigDecimal) (constructionPhaseResult[7]));
+        constructionPhase.setRevisedConstructionCost((BigDecimal) (constructionPhaseResult[8]));
+
+        return constructionPhase;
+    }
+
+
+
 //    @PostMapping(value = "/getGuideline")
 //    public String getGuideline(Model model)
 
@@ -132,5 +185,16 @@ public class LoanController {
 
         return "Inspection saved";
     }
+
+    @RequestMapping(value = "/saveLoan", method = RequestMethod.POST, consumes ={MediaType.APPLICATION_JSON_VALUE} )
+    public  @ResponseBody String saveLoan(@RequestBody Loan loan)
+    {
+
+
+        loanDao.save(loan);
+
+        return "Loan saved";
+    }
+
 
 }

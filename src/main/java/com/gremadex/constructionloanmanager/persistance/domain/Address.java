@@ -14,7 +14,7 @@ public class Address {
     @Id
     @SequenceGenerator(name="address_generator", sequenceName="address_sequence", initialValue = 23)
     @GeneratedValue(generator = "address_generator")
-    private Long id;
+    private Integer id;
 
     @Column(name="name",nullable = false)
     private String name;
@@ -32,20 +32,20 @@ public class Address {
     private String countryCode;
 
     @Column(name="latitude",nullable = false)
-    private String latitude;
+    private Double latitude;
 
     @Column(name="longitude", nullable = false)
-    private String longitude;
+    private Double longitude;
 
     public static long getSerialVersionUID() {
         return serialVersionUID;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -81,19 +81,19 @@ public class Address {
         this.countryCode = countryCode;
     }
 
-    public String getLatitude() {
+    public Double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(String latitude) {
+    public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
 
-    public String getLongitude() {
+    public Double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(String longitude) {
+    public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
 
