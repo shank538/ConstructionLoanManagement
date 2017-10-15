@@ -276,47 +276,84 @@ def createnewconstruction():
         return redirect(url_for('login'))
 
 
-@app.route('/addnewconstructionphase', methods=['GET', 'POST'])
+@app.route('/addnewconstructionphase/<string:projectid>/', methods=['GET', 'POST'])
 @is_logged_in
-def addnewconstructionphase():
-    if 'logged_in' in session:
-        print("request.method = ", request.method, file=sys.stderr)
-        return render_template('addnewconstructionphase.html')
-    else:
-        return redirect(url_for('login'))
+def addnewconstructionphase(projectid):
+    # create curosr
+    cur = mysql.connection.cursor()
+    try:
+        # Query from MasterGuideline
+        phaseid = int(projectid)
+        result = cur.execute(
+            "SELECT * FROM constructionphase WHERE masterreferenceid = %s", [phaseid])
+        if result > 0:
+            addnewphase = cur.fetchone()
+            cur.execute(
+                "SELECT COUNT(*) FROM constructionphase WHERE masterreferenceid = %s", [phaseid])
+            total_num_row = cur.fetchone()
+            rowcount = int(total_num_row[0]) + 1
+            cur.close()
+            return render_template('addnewconstructionphase.html', addnewphase=addnewphase, rowcount=rowcount)
+    except ValueError as err:
+        print(err)
+    finally:
+        # Close cursor connection
+        cur.close()
+    return redirect(url_for('constructionloantracker'))
 
 
 @app.route('/loantrack/<string:projectid>/', methods=['GET', 'POST'])
 @is_logged_in
 def loantracker(projectid):
-    if request.method == 'POST':
         # create curosr
-        cur = mysql.connection.cursor()
-        try:
+    cur = mysql.connection.cursor()
+    try:
             # Query from MasterGuideline
-            masterid = int(projectid)
+        masterid = int(projectid)
+        result = cur.execute(
+            "SELECT * FROM guideline WHERE id = %s", [masterid])
+        if result > 0:
+            guideline = cur.fetchone()
+            addressid = int(guideline[1])
+            # Query from Address Phase Table
             result = cur.execute(
-                "SELECT * FROM guideline WHERE id = %s", [masterid])
-            if result > 0:
-                guideline = cur.fetchone()
-                addressid = int(guideline[1])
-                # Query from Address Phase Table
-                result = cur.execute(
-                    "SELECT * FROM address WHERE id = %s", [addressid])
-                address = cur.fetchone()
-                # Query from Construction Phase Table
-                result = cur.execute(
-                    "SELECT * FROM constructionphase WHERE masterreferenceid = %s", [masterid])
-                constructionphasesitems = cur.fetchall()
-                cur.close()
-                return render_template('loantrack.html', projectid=projectid, guideline=guideline, address=address, constructionphasesitems=constructionphasesitems)
-        except ValueError as err:
-            print(err)
-        finally:
-            # Close cursor connection
+                "SELECT * FROM address WHERE id = %s", [addressid])
+            address = cur.fetchone()
+            # Query from Construction Phase Table
+            result = cur.execute(
+                "SELECT * FROM constructionphase WHERE masterreferenceid = %s", [masterid])
+            constructionphasesitems = cur.fetchall()
             cur.close()
-        return redirect(url_for('constructionloantracker'))
-    return
+            return render_template('loantrack.html', projectid=projectid, guideline=guideline, address=address, constructionphasesitems=constructionphasesitems)
+    except ValueError as err:
+        print(err)
+    finally:
+        # Close cursor connection
+        cur.close()
+    return redirect(url_for('constructionloantracker'))
+
+
+@app.route('/loantrack/<string:projectid>/<string:phaseid>', methods=['GET', 'POST'])
+@is_logged_in
+def editloantracker(projectid, phaseid):
+        # create curosr
+    cur = mysql.connection.cursor()
+    try:
+            # Query from MasterGuideline
+        masterid = int(projectid)
+        phaseid = int(phaseid)
+        result = cur.execute(
+            "SELECT * FROM constructionphase WHERE masterreferenceid = %s AND constructionphasenumber = %s", [masterid, phaseid])
+        if result > 0:
+            constructionphase = cur.fetchone()
+            cur.close()
+            return render_template('editconstructionphase.html', constructionphase=constructionphase)
+    except ValueError as err:
+        print(err)
+    finally:
+        # Close cursor connection
+        cur.close()
+    return redirect(url_for('constructionloantracker'))
 
 
 @app.route('/icons')
