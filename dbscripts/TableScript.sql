@@ -38,18 +38,25 @@ CREATE TABLE constructionloanmanagement.`guideline` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE constructionloanmanagement.`individual` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `role_type` varchar(10) NOT NULL,
-  `name` varchar(30) NOT NULL,
-  `email_id` varchar(30) NOT NULL,
-  `handphone` varchar(20) DEFAULT NULL,
-  `deskphone` varchar(20) DEFAULT NULL,
-  `street` varchar(50) DEFAULT NULL,
-  `zip_code` varchar(20) DEFAULT NULL,
-  `city` varchar(30) NOT NULL,
-  `country_code` varchar(10) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+ `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+ `role_type` varchar(10) NOT NULL,
+ `firstname` varchar(100) NOT NULL,
+ `lastname` varchar(100) NOT NULL,
+ `email` varchar(100) NOT NULL,
+ `company` varchar(100) DEFAULT NULL,
+ `handphone` varchar(20) DEFAULT NULL,
+ `deskphone` varchar(20) DEFAULT NULL,
+ `street` varchar(100) DEFAULT NULL,
+ `zip_code` varchar(20) DEFAULT NULL,
+ `city` varchar(30) DEFAULT NULL,
+ `country_code` varchar(10) DEFAULT NULL,
+ `username` varchar(30) NOT NULL,
+ `password` varchar(100) NOT NULL,
+ `registered_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+ `aboutme` varchar(300) DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ UNIQUE KEY `username_ind_UNIQUE` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
 
 CREATE TABLE constructionloanmanagement.`inspection` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
