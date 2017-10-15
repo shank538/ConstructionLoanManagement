@@ -21,7 +21,7 @@ CREATE TABLE constructionloanmanagement.`constructionphase` (
   `constructioncost` decimal(13,4) NOT NULL,
   `revisedconstructioncost` decimal(13,4) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `construction_unique_index` (`projectname`,`constructionphasenumber`),
+  UNIQUE KEY `construction_unique_index` (`phasename`,`constructionphasenumber`),
   KEY `fk_masterreferenceid` (`masterreferenceid`),
   CONSTRAINT `fk_masterreferenceid` FOREIGN KEY (`masterreferenceid`) REFERENCES `guideline` (` id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
@@ -56,7 +56,7 @@ CREATE TABLE constructionloanmanagement.`individual` (
  `aboutme` varchar(300) DEFAULT NULL,
  PRIMARY KEY (`id`),
  UNIQUE KEY `username_ind_UNIQUE` (`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE constructionloanmanagement.`inspection` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
