@@ -6,6 +6,7 @@ from wtforms import Form, StringField, SelectField, TextAreaField, PasswordField
 from passlib.hash import sha256_crypt
 from functools import wraps
 from flask_table import Table, Col
+from jinja2 import Template
 
 app = Flask(__name__)
 
@@ -36,11 +37,17 @@ app.config['MYSQL_DB'] = 'constructionloanmanagement'
 mysql = MySQL(app)
 
 Individual = Individual()
-Individual_Type_Choice = [
-    ('Admin', 'Admin'), ('Inspector', 'Inspector'), ('BankRep', 'BankRep')]
 
 Individual_Type_Choice = [
     ('Admin', 'Admin'), ('Inspector', 'Inspector'), ('BankRep', 'BankRep')]
+
+Phase_Status = [
+    ('In Progress', 'In Progress'), ('Completed', 'Completed'), ('Not Started', 'Not Started')]
+
+
+@app.context_processor
+def phasestatustag():
+    return dict(phasestatusitems=Phase_Status)
 
 
 @app.route('/')
@@ -83,6 +90,111 @@ class RegisterForm(Form):
         validators.EqualTo('confirm',  message='Password does not match')
     ])
     confirm = PasswordField('Confirm Password')
+
+
+class AddressForm(Form):
+    name = StringField('name', [validators.Length(min=1, max=45)])
+    street = StringField('street', [validators.Length(min=4, max=100)])
+    zip_code = StringField('zip_code', [validators.Length(min=4, max=20)])
+    city = StringField('city', [validators.Length(min=3, max=30)])
+    country_code = StringField(
+        'country_code', [validators.Length(min=3, max=10)])
+    latitude = StringField('latitude')
+    longitude = StringField('longitude')
+
+
+@app.route('/address', methods=['GET', 'POST'])
+def address():
+    if 'logged_in' in session:
+        cur = mysql.connection.cursor()
+        result = cur.execute("SELECT * FROM  address")
+        if result > 0:
+            addressitems = cur.fetchall()
+            return render_template('address.html', addressitems=addressitems)
+    else:
+        return redirect(url_for('login'))
+
+
+@app.route('/address/<string:indexid>/', methods=['GET', 'POST'])
+def editaddress(indexid):
+    if 'logged_in' in session:
+        form = AddressForm(request.form)
+        cur = mysql.connection.cursor()
+        addressid = int(indexid)
+        if request.method == 'GET':
+            result = cur.execute(
+                "SELECT * FROM  address where id = %s", [addressid])
+            if result > 0:
+                addressitem = cur.fetchone()
+                form.name.data = addressitem[1]
+                form.street.data = addressitem[2]
+                form.zip_code.data = addressitem[3]
+                form.city.data = addressitem[4]
+                form.country_code.data = addressitem[5]
+                form.latitude.data = addressitem[6]
+                form.longitude.data = addressitem[7]
+                cur.close()
+                return render_template('editaddress.html', form=form, indexid=indexid)
+            else:
+                cur.close()
+        else:
+            if form.validate():
+                name = form.name.data
+                street = form.street.data
+                zip_code = form.zip_code.data
+                city = form.city.data
+                country_code = form.country_code.data
+                latitude = form.latitude.data
+                if latitude in ("", "None"):
+                    latitude = None
+                longitude = form.longitude.data
+                if longitude in ("", "None"):
+                    longitude = None
+                # create curosr
+                cur.execute("""UPDATE address SET name=%s, street=%s, zip_code=%s, city=%s, country_code=%s, latitude=%s, longitude=%s WHERE id=%s
+                """, (name, street, zip_code, city, country_code, latitude, longitude, addressid))
+                mysql.connection.commit()
+                # Close cursor connection
+                cur.close()
+                flash('Adreess are added successfully', 'Success')
+                return redirect(url_for('address'))
+            else:
+                cur.close()
+            return redirect(url_for('address'))
+    else:
+        return redirect(url_for('login'))
+
+
+@app.route('/addnewaddress', methods=['GET', 'POST'])
+def addnewaddress():
+    if 'logged_in' in session:
+        form = AddressForm(request.form)
+        if request.method == 'POST':
+            if form.validate():
+                name = form.name.data
+                street = form.street.data
+                zip_code = form.zip_code.data
+                city = form.city.data
+                country_code = form.country_code.data
+                latitude = form.latitude.data
+                if latitude in ("", "None"):
+                    latitude = None
+                longitude = form.longitude.data
+                if longitude in ("", "None"):
+                    longitude = None
+                # create curosr
+                cur = mysql.connection.cursor()
+                cur.execute("INSERT INTO address(name, street, zip_code, city, country_code, latitude, longitude) VALUES(%s, %s, %s, %s, %s, %s, %s)",
+                            (name, street, zip_code, city, country_code, latitude, longitude))
+                mysql.connection.commit()
+                # Close cursor connection
+                cur.close()
+                flash('Adreess are added successfully', 'Success')
+                return redirect(url_for('address'))
+        else:
+            return render_template('addnewaddress.html', form=form)
+    else:
+        return redirect(url_for('login'))
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -281,25 +393,55 @@ def createnewconstruction():
 def addnewconstructionphase(projectid):
     # create curosr
     cur = mysql.connection.cursor()
-    try:
-        # Query from MasterGuideline
-        phaseid = int(projectid)
-        result = cur.execute(
-            "SELECT * FROM constructionphase WHERE masterreferenceid = %s", [phaseid])
-        if result > 0:
-            addnewphase = cur.fetchone()
-            cur.execute(
-                "SELECT COUNT(*) FROM constructionphase WHERE masterreferenceid = %s", [phaseid])
-            total_num_row = cur.fetchone()
-            rowcount = int(total_num_row[0]) + 1
+    print("request.method = ", request.method, file=sys.stderr)
+    if request.method == 'POST':
+        # Get Form Filled
+        print("request.form= ", request.form, file=sys.stderr)
+        phasename = request.form['projectname']
+        print("phasename = ", phasename, file=sys.stderr)
+        masterreferenceid = request.form['projectid']
+        print("masterreferenceid = ", masterreferenceid, file=sys.stderr)
+        phasenumber = request.form['phasenumber']
+        print("phasenumber = ", phasenumber, file=sys.stderr)
+        phasestatus = request.form['phase_select']
+        print("Phasestatus = ", phasestatus, file=sys.stderr)
+        phasestartdate = request.form['phasestartdate']
+        print("phasestartdate = ", phasestartdate, file=sys.stderr)
+        phaseenddate = request.form['phaseenddate']
+        print("phaseenddate = ", phaseenddate, file=sys.stderr)
+        constructioncost = request.form['constructioncost']
+        print("constructioncost = ", constructioncost, file=sys.stderr)
+        revisedconstructioncost = request.form['revisedconstructioncost']
+        if revisedconstructioncost == "":
+            revisedconstructioncost = None
+        print("revisedconstrictioncost= ",
+              revisedconstructioncost, file=sys.stderr)
+
+        # create curosr
+        cur.execute("INSERT INTO constructionphase(phasename, masterreferenceid, constructionphasenumber, status, startdate, enddate, constructioncost, revisedconstructioncost) VALUES(%s, %s, %s, %s, %s, %s, %s, %s)",
+                    (phasename, masterreferenceid, phasenumber, phasestatus, phasestartdate, phaseenddate, constructioncost, revisedconstructioncost))
+        mysql.connection.commit()
+        return redirect(url_for('loantracker', projectid=projectid))
+    else:
+        try:
+            # Query from MasterGuideline
+            phaseid = int(projectid)
+            result = cur.execute(
+                "SELECT * FROM constructionphase WHERE masterreferenceid = %s", [phaseid])
+            if result > 0:
+                addnewphase = cur.fetchone()
+                cur.execute(
+                    "SELECT COUNT(*) FROM constructionphase WHERE masterreferenceid = %s", [phaseid])
+                total_num_row = cur.fetchone()
+                rowcount = int(total_num_row[0]) + 1
+                cur.close()
+                return render_template('addnewconstructionphase.html', addnewphase=addnewphase, rowcount=rowcount)
+        except ValueError as err:
+            print(err)
+        finally:
+            # Close cursor connection
             cur.close()
-            return render_template('addnewconstructionphase.html', addnewphase=addnewphase, rowcount=rowcount)
-    except ValueError as err:
-        print(err)
-    finally:
-        # Close cursor connection
-        cur.close()
-    return redirect(url_for('constructionloantracker'))
+        return redirect(url_for('constructionloantracker'))
 
 
 @app.route('/loantrack/<string:projectid>/', methods=['GET', 'POST'])
@@ -336,24 +478,47 @@ def loantracker(projectid):
 @app.route('/loantrack/<string:projectid>/<string:phaseid>', methods=['GET', 'POST'])
 @is_logged_in
 def editloantracker(projectid, phaseid):
-        # create curosr
     cur = mysql.connection.cursor()
-    try:
+    masterid = int(projectid)
+    phaseid = int(phaseid)
+    if request.method == 'GET':
+        # create curosr
+        try:
             # Query from MasterGuideline
-        masterid = int(projectid)
-        phaseid = int(phaseid)
-        result = cur.execute(
-            "SELECT * FROM constructionphase WHERE masterreferenceid = %s AND constructionphasenumber = %s", [masterid, phaseid])
-        if result > 0:
-            constructionphase = cur.fetchone()
+            result = cur.execute(
+                "SELECT * FROM constructionphase WHERE masterreferenceid = %s AND constructionphasenumber = %s", [masterid, phaseid])
+            if result > 0:
+                constructionphase = cur.fetchone()
+                cur.close()
+                return render_template('editconstructionphase.html', constructionphase=constructionphase)
+        except ValueError as err:
+            print(err)
+        finally:
+            # Close cursor connection
             cur.close()
-            return render_template('editconstructionphase.html', constructionphase=constructionphase)
-    except ValueError as err:
-        print(err)
-    finally:
-        # Close cursor connection
-        cur.close()
-    return redirect(url_for('constructionloantracker'))
+        return redirect(url_for('constructionloantracker'))
+    else:
+         # Get Form Filled
+        print("request.form= ", request.form, file=sys.stderr)
+        phasestatus = request.form['phase_select']
+        print("Phasestatus = ", phasestatus, file=sys.stderr)
+        phasestartdate = request.form['phasestartdate']
+        print("phasestartdate = ", phasestartdate, file=sys.stderr)
+        phaseenddate = request.form['phaseenddate']
+        print("phaseenddate = ", phaseenddate, file=sys.stderr)
+        constructioncost = request.form['constructioncost']
+        print("constructioncost = ", constructioncost, file=sys.stderr)
+        revisedconstructioncost = request.form['revisedconstructioncost']
+        if revisedconstructioncost in ("", "None"):
+            revisedconstructioncost = None
+        print("revisedconstrictioncost = ",
+              revisedconstructioncost, file=sys.stderr)
+
+        # create curosr
+        cur.execute("""UPDATE constructionphase SET status=%s, startdate=%s, enddate=%s, constructioncost=%s, revisedconstructioncost=%s WHERE id=%s AND masterreferenceid=%s
+        """, (phasestatus, phasestartdate, phaseenddate, constructioncost, revisedconstructioncost, phaseid, masterid))
+        mysql.connection.commit()
+        return redirect(url_for('loantracker', projectid=projectid))
 
 
 @app.route('/icons')
