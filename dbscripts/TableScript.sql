@@ -87,4 +87,14 @@ CREATE TABLE constructionloanmanagement.`loan` (
   CONSTRAINT `fk_constructionphaseloanid` FOREIGN KEY (`constructionphaseid`) REFERENCES `constructionphase` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `document` (
+  `id` int(10) unsigned NOT NULL,
+  `constructionid` int(10) NOT NULL,
+  `docname` varchar(100) NOT NULL,
+  `type` varchar(45) NOT NULL,
+  `remark` varchar(200) DEFAULT NULL,
+  `dateuploaded` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
 
