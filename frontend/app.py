@@ -1,5 +1,5 @@
 import sys
-from flask import Flask, request, render_template, flash, redirect, url_for, session, logging
+from flask import Flask, request, render_template, flash, redirect, url_for, session, logging, abort
 from data import Individual
 from flask_mysqldb import MySQL
 from wtforms import Form, StringField, SelectField, TextAreaField, PasswordField, validators
@@ -7,6 +7,7 @@ from passlib.hash import sha256_crypt
 from functools import wraps
 from flask_table import Table, Col
 from jinja2 import Template
+from flask_cloudy import Storage
 
 app = Flask(__name__)
 
@@ -26,15 +27,27 @@ class ConstructionPhaseTable(Table):
     constructioncost = Col('constructioncost')
     revisedconstructioncost = Col('revisedconstructioncost')
 
+
 # Config MySQL
-
-
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'barun'
 app.config['MYSQL_DB'] = 'constructionloanmanagement'
+
 # init MYSQL
 mysql = MySQL(app)
+
+# Configuration for Flask Cloudy Storage
+app.config.update({
+    "STORAGE_PROVIDER": "LOCAL",
+    "STORAGE_CONTAINER": "./data",
+    "STORAGE_KEY": "",
+    "STORAGE_SECRET": "",
+    "STORAGE_SERVER": True
+})
+
+storage = Storage()
+storage.init_app(app)
 
 Individual = Individual()
 
@@ -101,6 +114,10 @@ class AddressForm(Form):
         'country_code', [validators.Length(min=3, max=10)])
     latitude = StringField('latitude')
     longitude = StringField('longitude')
+
+
+def GuidelineFormValidate(Form):
+    return True
 
 
 @app.route('/address', methods=['GET', 'POST'])
@@ -360,9 +377,9 @@ def table():
         return redirect(url_for('login'))
 
 
-@app.route('/constructionloantracker')
+@app.route('/constructionprojecttracker')
 @is_logged_in
-def constructionloantracker():
+def constructionprojecttracker():
     if 'logged_in' in session:
         # Create cursor
         cur = mysql.connection.cursor()
@@ -370,10 +387,10 @@ def constructionloantracker():
         # Get articles
         result = cur.execute("SELECT * FROM guideline")
 
-        loantrackers = cur.fetchall()
+        projecttrackers = cur.fetchall()
         cur.close()
 
-        return render_template('constructionloantracker.html', loantrackers=loantrackers)
+        return render_template('constructionprojecttracker.html', projecttrackers=projecttrackers)
     else:
         return redirect(url_for('login'))
 
@@ -383,7 +400,62 @@ def constructionloantracker():
 def createnewconstruction():
     if 'logged_in' in session:
         print("request.method = ", request.method, file=sys.stderr)
-        return render_template('createnewconstruction.html')
+        cur = mysql.connection.cursor()
+        if request.method == 'GET':
+            result = cur.execute("SELECT * FROM address")
+            addressids = cur.fetchall()
+            individualtype = "Inspector"
+            result = cur.execute(
+                "SELECT * FROM individual WHERE role_type = %s", [individualtype])
+            individualids = cur.fetchall()
+            cur.close()
+            return render_template('createnewconstruction.html', addressids=addressids, individualids=individualids)
+        else:
+            print("request.form= ", request.form, file=sys.stderr)
+            validate = GuidelineFormValidate(request.form)
+            if validate:
+                projectid = int(request.form['projectid'])
+                print("projectid = ", projectid, file=sys.stderr)
+                projectname = request.form['projectname']
+                print("projectname = ", projectname, file=sys.stderr)
+                startdate = request.form['startdate']
+                print("startdate = ", startdate, file=sys.stderr)
+                enddate = request.form['enddate']
+                print("enddate = ", enddate, file=sys.stderr)
+                phasenumber = int(request.form['phasenumber'])
+                print("phasenumber = ", phasenumber, file=sys.stderr)
+                phasestatus = request.form['phase_select']
+                print("phasestatus = ", phasestatus, file=sys.stderr)
+                conststartdate = request.form['conststartdate']
+                print("conststartdate = ", conststartdate, file=sys.stderr)
+                constenddate = request.form['constenddate']
+                print("constenddate = ", constenddate, file=sys.stderr)
+                constructioncost = request.form['constructioncost']
+                print("constructioncost = ", constructioncost, file=sys.stderr)
+                addressid = int(request.form['address_select'])
+                print("addressid = ", addressid, file=sys.stderr)
+                inspectorid = request.form['inspector_select']
+                print("inspectorid = ", inspectorid, file=sys.stderr)
+
+                cur.execute("INSERT INTO guideline(id, addressid, projectname, startdate, enddate) VALUES(%s, %s, %s, %s, %s)",
+                            (projectid, addressid, projectname, startdate, enddate))
+
+                cur.execute("INSERT INTO constructionphase(phasename, masterreferenceid, constructionphasenumber, status, startdate, enddate, constructioncost) VALUES(%s, %s, %s, %s, %s, %s, %s)",
+                            (projectname, projectid, phasenumber, phasestatus, conststartdate, constenddate, constructioncost))
+
+                if inspectorid not in ("", "None"):
+                    # Get the construction Id
+                    constructionid = int(cur.lastrowid)
+                    inspectorid = int(inspectorid)
+                    print("constructionid = ", constructionid, file=sys.stderr)
+                    cur.execute("INSERT INTO inspection(constructionid, individualid) VALUES(%s, %s)",
+                                (constructionid, inspectorid))
+                mysql.connection.commit()
+                cur.close()
+                return redirect(url_for('constructionprojecttracker'))
+            else:
+                cur.close()
+                return redirect(url_for('constructionprojecttracker'))
     else:
         return redirect(url_for('login'))
 
@@ -416,11 +488,21 @@ def addnewconstructionphase(projectid):
             revisedconstructioncost = None
         print("revisedconstrictioncost= ",
               revisedconstructioncost, file=sys.stderr)
+        inspectorid = request.form['inspector_select']
+        print("inspectorid = ", inspectorid, file=sys.stderr)
 
         # create curosr
         cur.execute("INSERT INTO constructionphase(phasename, masterreferenceid, constructionphasenumber, status, startdate, enddate, constructioncost, revisedconstructioncost) VALUES(%s, %s, %s, %s, %s, %s, %s, %s)",
                     (phasename, masterreferenceid, phasenumber, phasestatus, phasestartdate, phaseenddate, constructioncost, revisedconstructioncost))
+        if inspectorid not in ("", "None"):
+            # Get the construction Id
+            constructionid = int(cur.lastrowid)
+            inspectorid = int(inspectorid)
+            print("constructionid = ", constructionid, file=sys.stderr)
+            cur.execute("INSERT INTO inspection(constructionid, individualid) VALUES(%s, %s)",
+                        (constructionid, inspectorid))
         mysql.connection.commit()
+        cur.close()
         return redirect(url_for('loantracker', projectid=projectid))
     else:
         try:
@@ -434,8 +516,12 @@ def addnewconstructionphase(projectid):
                     "SELECT COUNT(*) FROM constructionphase WHERE masterreferenceid = %s", [phaseid])
                 total_num_row = cur.fetchone()
                 rowcount = int(total_num_row[0]) + 1
+                individualtype = "Inspector"
+                result = cur.execute(
+                    "SELECT * FROM individual WHERE role_type = %s", [individualtype])
+                individualids = cur.fetchall()
                 cur.close()
-                return render_template('addnewconstructionphase.html', addnewphase=addnewphase, rowcount=rowcount)
+                return render_template('addnewconstructionphase.html', addnewphase=addnewphase, individualids=individualids, rowcount=rowcount)
         except ValueError as err:
             print(err)
         finally:
@@ -465,8 +551,16 @@ def loantracker(projectid):
             result = cur.execute(
                 "SELECT * FROM constructionphase WHERE masterreferenceid = %s", [masterid])
             constructionphasesitems = cur.fetchall()
+            # Query from Inspection  Table
+            result = cur.execute(
+                "SELECT * FROM inspection WHERE constructionid IN (SELECT id FROM constructionphase WHERE masterreferenceid = %s)", [masterid])
+            inspectionitems = cur.fetchall()
+            # Query from Loan  Table
+            result = cur.execute(
+                "SELECT * FROM loan WHERE constructionphaseid IN (SELECT id FROM constructionphase WHERE masterreferenceid = %s)", [masterid])
+            loanitems = cur.fetchall()
             cur.close()
-            return render_template('loantrack.html', projectid=projectid, guideline=guideline, address=address, constructionphasesitems=constructionphasesitems)
+            return render_template('loantrack.html', projectid=projectid, guideline=guideline, address=address, constructionphasesitems=constructionphasesitems, inspectionitems=inspectionitems, loanitems=loanitems)
     except ValueError as err:
         print(err)
     finally:
@@ -489,8 +583,17 @@ def editloantracker(projectid, phaseid):
                 "SELECT * FROM constructionphase WHERE masterreferenceid = %s AND constructionphasenumber = %s", [masterid, phaseid])
             if result > 0:
                 constructionphase = cur.fetchone()
-                cur.close()
-                return render_template('editconstructionphase.html', constructionphase=constructionphase)
+             # Query from Inspection  Table
+            result = cur.execute(
+                "SELECT * FROM inspection WHERE constructionid IN (SELECT id FROM constructionphase WHERE masterreferenceid = %s AND constructionphasenumber = %s)", [masterid, phaseid])
+            inspectionitem = cur.fetchone()
+            individualtype = "Inspector"
+            result = cur.execute(
+                "SELECT * FROM individual WHERE role_type = %s", [individualtype])
+            individualids = cur.fetchall()
+            cur.close()
+            print("inspectionitem= ", inspectionitem, file=sys.stderr)
+            return render_template('editconstructionphase.html', constructionphase=constructionphase, inspectionitem=inspectionitem, individualids=individualids, storage=storage)
         except ValueError as err:
             print(err)
         finally:
@@ -513,12 +616,28 @@ def editloantracker(projectid, phaseid):
             revisedconstructioncost = None
         print("revisedconstrictioncost = ",
               revisedconstructioncost, file=sys.stderr)
-
-        # create curosr
-        cur.execute("""UPDATE constructionphase SET status=%s, startdate=%s, enddate=%s, constructioncost=%s, revisedconstructioncost=%s WHERE id=%s AND masterreferenceid=%s
-        """, (phasestatus, phasestartdate, phaseenddate, constructioncost, revisedconstructioncost, phaseid, masterid))
-        mysql.connection.commit()
-        return redirect(url_for('loantracker', projectid=projectid))
+        print("phaseid = ", phaseid, file=sys.stderr)
+        print("masterid = ", masterid, file=sys.stderr)
+        inspectorid = request.form['inspector_select']
+        print("inspectorid = ", inspectorid, file=sys.stderr)
+        constructionid = request.form['constructionid']
+        print("constructionid = ", constructionid, file=sys.stderr)
+        try:
+            # create curosr
+            result = cur.execute("""UPDATE constructionphase SET status=%s, startdate=%s, enddate=%s, constructioncost=%s, revisedconstructioncost=%s WHERE masterreferenceid=%s AND constructionphasenumber=%s
+            """, (phasestatus, phasestartdate, phaseenddate, constructioncost, revisedconstructioncost, masterid, phaseid))
+            individualid = int(inspectorid)
+            constructionid = int(constructionid)
+            result = cur.execute("""UPDATE inspection SET individualid=%s WHERE constructionid=%s
+            """, (individualid, constructionid))
+            mysql.connection.commit()
+            cur.close()
+            return redirect(url_for('loantracker', projectid=projectid))
+        except ValueError as err:
+            print(err)
+        finally:
+            # Close cursor connection
+            cur.close()
 
 
 @app.route('/icons')
